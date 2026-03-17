@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyList - To Do List Pro</title>
+    <!-- Font Awesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #4facfe;
+            --secondary-color: #00f2fe;
+            --bg-gradient: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+            --text-color: #333;
+            --gray-light: #f4f7f6;
+            --danger-color: #ff6b6b;
+            --success-color: #2ecc71;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Container Utama */
+        .todo-app {
+            width: 100%;
+            max-width: 500px;
+            background: #fff;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            color: var(--text-color);
+            flex: 1;
+            font-weight: 600;
+        }
+
+        .header i {
+            color: var(--primary-color);
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        /* Input Area */
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--gray-light);
+            border-radius: 30px;
+            padding-left: 20px;
+            margin-bottom: 25px;
+            border: 2px solid transparent;
+            transition: 0.3s;
+        }
+
+        .row:focus-within {
+            border-color: var(--primary-color);
+            background: #fff;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.2);
+        }
+
+        input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 15px 0;
+            font-size: 16px;
+            color: var(--text-color);
+        }
+
+        button.add-btn {
+            border: none;
+            outline: none;
+            padding: 12px 25px;
+            background: var(--bg-gradient);
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        button.add-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Filter Tabs */
+        .filters {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .filter-btn {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 5px 10px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .filter-btn.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        /* List Styling */
+        ul {
+            list-style: none;
+            max-height: 400px;
+            overflow-y: auto;
+            /* Scrollbar custom */
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) #f1f1f1;
+        }
+
+        ul li {
+            font-size: 16px;
+            padding: 12px 10px;
+            user-select: none;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease forwards;
+            border: 1px solid #f0f0f0;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        ul li:hover {
+            background: #f9fbff;
+            transform: translateX(5px);
+        }
+
+        /* Custom Checkbox Circle */
+        ul li::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            margin-right: 15px;
+            flex-shrink: 0;
+            transition: 0.2s;
+            display: inline-block;
+        }
+
+        /* Checked State */
+        ul li.checked {
+            color: #999;
+            text-decoration: line-through;
+            background: #fafafa;
+        }
+
+        ul li.checked::before {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white' width='14px' height='14px'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+            background-size: 12px;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* Delete Button */
+        ul li span {
+            width: 30px;
+            height: 30px;
+            font-size: 14px;
+            color: #ccc;
+            line-height: 30px;
+            text-align: center;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+
+        ul li span:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        /* Empty State Message */
+        .empty-state {
+            text-align: center;
+            color: #aaa;
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .empty-state i {
+            font-size: 40px;
+            margin-bottom: 10px;
+            color: #ddd;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="todo-app">
+        <div class="header">
+            <h2><i class="fa-solid fa-cloud-sun"></i> SkyList Harian</h2>
+            <div id="date-display" style="font-size: 12px; color: #888;"></div>
+        </div>
+
+        <div class="row">
+            <input type="text" id="input-box" placeholder="Apa rencana produktifmu hari ini?">
+            <button class="add-btn" onclick="addTask()">Tambah</button>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterTasks('all')">Semua</button>
+            <button class="filter-btn" onclick="filterTasks('active')">Aktif</button>
+            <button class="filter-btn" onclick="filterTasks('completed')">Selesai</button>
+        </div>
+
+        <ul id="list-container">
+            <!-- List item akan muncul di sini -->
+        </ul>
+
+        <div class="empty-state" id="empty-msg">
+            <i class="fa-regular fa-face-smile"></i>
+            <p>Yey! Tidak ada tugas tersisa.</p>
+        </div>
+    </div>
+
+    <script>
+        const inputBox = document.getElementById("input-box");
+        const listContainer = document.getElementById("list-container");
+        const emptyMsg = document.getElementById("empty-msg");
+        const dateDisplay = document.getElementById("date-display");
+        let currentFilter = 'all';
+
+        // Menampilkan Tanggal Hari Ini
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        dateDisplay.innerHTML = new Date().toLocaleDateString('id-ID', options);
+
+        // Fungsi Menambahkan Tugas
+        function addTask() {
+            if (inputBox.value === '') {
+                alert("Tulis sesuatu dulu dong!");
+            } else {
+                let li = document.createElement("li");
+                
+                // Membuat konten HTML untuk list item
+                li.innerHTML = `
+                    <span>${inputBox.value}</span>
+                    <span class="delete-icon"><i class="fa-solid fa-trash"></i></span>
+                `;
+                
+                listContainer.appendChild(li);
+            }
+            inputBox.value = "";
+            saveData();
+            checkEmpty();
+        }
+
+        // Event Listener untuk Klik (Toggle Check & Delete)
+        listContainer.addEventListener("click", function(e) {
+            // Cek jika yang diklik adalah LI atau SPAN teks (untuk toggle checked)
+            if (e.target.tagName === "LI" || e.target.tagName === "SPAN" && !e.target.classList.contains('delete-icon')) {
+                // Jika klik icon trash, jangan toggle checked
+                if(e.target.closest('.delete-icon')) return;
+                
+                let targetLi = e.target.tagName === "LI" ? e.target : e.target.parentElement;
+                targetLi.classList.toggle("checked");
+                saveData();
+                checkEmpty();
+            }
+            // Cek jika yang diklik adalah tombol hapus (Icon Trash)
+            else if (e.target.closest('.delete-icon')) {
+                let targetLi = e.target.closest('li');
+                targetLi.style.transform = "translateX(50px)";
+                targetLi.style.opacity = "0";
+                setTimeout(() => {
+                    targetLi.remove();
+                    saveData();
+                    checkEmpty();
+                }, 300);
+            }
+        }, false);
+
+        // Tekan Enter untuk tambah
+        inputBox.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                addTask();
+            }
+        });
+
+        // Fungsi Filter
+        function filterTasks(filterType) {
+            currentFilter = filterType;
+            
+            // Update UI tombol aktif
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const allItems = listContainer.querySelectorAll('li');
+            
+            allItems.forEach(item => {
+                if (filterType === 'all') {
+                    item.style.display = 'flex';
+                } else if (filterType === 'active') {
+                    item.style.display = item.classList.contains('checked') ? 'none' : 'flex';
+                } else if (filterType === 'completed') {
+                    item.style.display = item.classList.contains('checked') ? 'flex' : 'none';
+                }
+            });
+            checkEmpty();
+        }
+
+        // Cek apakah list kosong untuk menampilkan pesan
+        function checkEmpty() {
+            const visibleItems = Array.from(listContainer.querySelectorAll('li')).filter(li => li.style.display !== 'none');
+            if (visibleItems.length === 0) {
+                emptyMsg.style.display = 'block';
+            } else {
+                emptyMsg.style.display = 'none';
+            }
+        }
+
+        // Simpan ke Local Storage
+        function saveData() {
+            // Kita simpan HTML dari list container
+            localStorage.setItem("skyListData", listContainer.innerHTML);
+        }
+
+        // Tampilkan data dari Local Storage
+        function showTask() {
+            const savedData = localStorage.getItem("skyListData");
+            if (savedData) {
+                listContainer.innerHTML = savedData;
+            }
+            checkEmpty();
+        }
+
+        // Jalankan saat load
+        showTask();
+
+    </script>
+</body>
+</html>
